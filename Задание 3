@@ -1,0 +1,49 @@
+using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+namespace HelloApp
+{
+    class Person
+    {
+        public string Name { get; set; }
+        public string Age { get; set; }
+    }
+    class Program
+    {
+        static async Task Main(string[] args)
+        {
+            string path = @"C:\SomeDir2\";
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
+            Console.WriteLine("Введите Имя для записи в файл:");
+            string text = Console.ReadLine();
+            Console.WriteLine("Введите Возраст для записи в файл:");
+            string text2 = Console.ReadLine();
+            using (FileStream fs = new FileStream($"{path}user.json", FileMode.OpenOrCreate))
+            {
+                Person chel = new Person() { Name = text, Age = text2 };
+                await JsonSerializer.SerializeAsync<Person>(fs, chel);
+                Console.WriteLine("Данные были записаны в файл");
+            }
+            using (FileStream fs = new FileStream($"{path}user.json", FileMode.OpenOrCreate))
+            {
+                Person restoredPerson = await JsonSerializer.DeserializeAsync<Person>(fs);
+                Console.WriteLine($"Name: {restoredPerson.Name}  Age: {restoredPerson.Age}");
+            }
+            string path2 = $"{path}user.json";
+            FileInfo fileInf = new FileInfo(path2);
+            Console.WriteLine("После нажатия ENTER файл будет удалён:");
+            string enter = Console.ReadLine();
+            if (enter == "")
+                if (fileInf.Exists)
+                {
+                    fileInf.Delete();
+                }
+        }
+    }
+}
